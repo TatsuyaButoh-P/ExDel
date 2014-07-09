@@ -7,7 +7,25 @@ AnimatorController:
   m_PrefabInternal: {fileID: 0}
   m_Name: PlayerAnimatorController
   serializedVersion: 2
-  m_AnimatorParameters: []
+  m_AnimatorParameters:
+  - m_Name: MissionStart
+    m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: ClickJump
+    m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: ClickSliding
+    m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 3
     m_Name: Base Layer
@@ -31,8 +49,8 @@ Transition:
   m_TransitionDuration: .0862068906
   m_TransitionOffset: 0
   m_Conditions:
-  - m_ConditionMode: 5
-    m_ConditionEvent: 
+  - m_ConditionMode: 1
+    m_ConditionEvent: MissionStart
     m_EventTreshold: 0
     m_ExitTime: .913793087
   m_Atomic: 1
@@ -50,7 +68,7 @@ Transition:
   m_TransitionOffset: 0
   m_Conditions:
   - m_ConditionMode: 5
-    m_ConditionEvent: 
+    m_ConditionEvent: MissionStart
     m_EventTreshold: 0
     m_ExitTime: .863636374
   m_Atomic: 1
@@ -68,7 +86,7 @@ Transition:
   m_TransitionOffset: 0
   m_Conditions:
   - m_ConditionMode: 5
-    m_ConditionEvent: 
+    m_ConditionEvent: MissionStart
     m_EventTreshold: 0
     m_ExitTime: .817073166
   m_Atomic: 1
@@ -85,8 +103,8 @@ Transition:
   m_TransitionDuration: .3125
   m_TransitionOffset: 0
   m_Conditions:
-  - m_ConditionMode: 5
-    m_ConditionEvent: 
+  - m_ConditionMode: 1
+    m_ConditionEvent: ClickJump
     m_EventTreshold: 0
     m_ExitTime: .6875
   m_Atomic: 1
@@ -103,8 +121,8 @@ Transition:
   m_TransitionDuration: .3125
   m_TransitionOffset: 0
   m_Conditions:
-  - m_ConditionMode: 5
-    m_ConditionEvent: 
+  - m_ConditionMode: 1
+    m_ConditionEvent: ClickSliding
     m_EventTreshold: 0
     m_ExitTime: .6875
   m_Atomic: 1
@@ -177,7 +195,7 @@ StateMachine:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Base Layer
-  m_DefaultState: {fileID: 110206688}
+  m_DefaultState: {fileID: 110200000}
   m_States:
   - {fileID: 110200000}
   - {fileID: 110263260}
