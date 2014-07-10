@@ -4689,6 +4689,10 @@ Prefab:
       propertyPath: playerAnimator
       value: 
       objectReference: {fileID: 1724952556}
+    - target: {fileID: 11400000, guid: 261274688753ba444a0b2f07a81259b2, type: 2}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1724952554}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 261274688753ba444a0b2f07a81259b2, type: 2}
   m_RootGameObject: {fileID: 1991735893}
@@ -5807,7 +5811,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd0136bf064605340a7800098e1e9ef8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerAnimator: {fileID: 1724952556}
+  player: {fileID: 1724952554}
 --- !u!4 &1991735895
 Transform:
   m_ObjectHideFlags: 0
