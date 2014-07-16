@@ -1,10 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class RunController : MonoBehaviour {
+//----------------------------------------------
+///@brief Runコントローラー
+using System.Collections.Generic;
+
+
+public class RunController : MonoBehaviour
+{
 
 	// 動作させるプレハブ
-	private GameObject backGround;
+	private List<GameObject> backGroundList;
 
 	// タイマー
 	private float timer = 0.0f;
@@ -19,20 +25,20 @@ public class RunController : MonoBehaviour {
 	private string playerAx;
 
 	// 最初のスピード
-	private const float DEFAULT_SPEED = 0.1f;
+	private const float Default_Speed = 0.1f;
 
 	// 定期処理時間
-	private const int CONSTANT_PROCESS_TIME = 1;
+	private const int Constant_Process_Time = 1;
 
 	// 左右真ん中軸
-	private const string AX_CENTER = "0";
-	private const string AX_LEFT = "1";
-	private const string AX_RIGHT = "2";
+	private const string Ax_Center = "0";
+	private const string Ax_Left = "1";
+	private const string Ax_Right = "2";
 
 	// 左右真ん中軸座標
-	private const float AX_CENTER_POS = 0.0f;
-	private const float AX_LEFT_POS = 1.0f;
-	private const float AX_RIGHT_POS = -1.0f;
+	private const float Ax_Center_Pos = 0.0f;
+	private const float Ax_Left_Pos = 1.0f;
+	private const float Ax_Right_Pos = -1.0f;
 
 	// プレイヤー
 	[SerializeField]
@@ -41,38 +47,44 @@ public class RunController : MonoBehaviour {
 	// プレイヤーのアニメーター
 	private Animator playerAnimator;
 
-	void Start () {
+	void Start ()
+	{
 		// アニメーター設定
-		playerAnimator = player.GetComponent<Animator> ();
+		playerAnimator = player.GetComponent<Animator>();
 
 		// 動作するプレハブを設定する
-		var go = Resources.Load ("Prefab/BackGround/BackGround_Town_01");
-		backGround = Instantiate (go) as GameObject;
+		backGroundList = new List<GameObject>();
+
+		var load = Resources.Load("Prefab/BackGround/BackGround_Town_01");
+		var go = Instantiate(load) as GameObject;
+		go.GetComponent<BackGroundController>().init(this.gameObject, true);
+		backGroundList.Add(go);
 
 		// 軸指定
-		playerAx = AX_CENTER;
+		playerAx = Ax_Center;
 	}
 
-	void Update () {
+	void Update ()
+	{
 		// タイマー加算
 		timer += Time.deltaTime;
 
 		// 定期処理
-		if (timer > CONSTANT_PROCESS_TIME) {
+		if (timer > Constant_Process_Time) {
 			if (!!initFlg) {
-				speed = DEFAULT_SPEED;
+				speed = Default_Speed;
 				initFlg = false;
-				playerAnimator.SetBool ("Running", true);
+				playerAnimator.SetBool("Running", true);
 			}
 
-			playerAnimator.SetBool ("Jumping", false);
-			playerAnimator.SetBool ("Sliding", false);
+			playerAnimator.SetBool("Jumping", false);
+			playerAnimator.SetBool("Sliding", false);
 
 			timer = 0.0f;
 		}
 
 		// プレハブを動かす
-		moveBackGround ();
+		moveBackGround();
 	}
 
 	void OnGUI ()
@@ -91,48 +103,62 @@ public class RunController : MonoBehaviour {
 		// 右移動ボタン
 		if (GUI.Button(new Rect(225, 430, 100, 50), "MoveRight")) {
 			Debug.Log("Click => MoveRight");
-			var position = backGround.transform.position;
+			var position = player.transform.position;
 			switch (playerAx) {
-			case AX_LEFT : 
-				position.x = AX_CENTER_POS;
-				playerAx = AX_CENTER;
+			case Ax_Left : 
+				position.x = Ax_Center_Pos;
+				playerAx = Ax_Center;
 				break;
-			case AX_CENTER : 
-				position.x = AX_RIGHT_POS;
-				playerAx = AX_RIGHT;
+			case Ax_Center : 
+				position.x = Ax_Right_Pos;
+				playerAx = Ax_Right;
 				break;
 			default : 
 				break;
 			}
-			backGround.transform.position = position;
+			player.transform.position = position;
 		}
 		// 左移動ボタン
 		if (GUI.Button(new Rect(25, 430, 100, 50), "MoveLeft")) {
 			Debug.Log("Click => MoveLeft");
-			var position = backGround.transform.position;
+			var position = player.transform.position;
 			switch (playerAx) {
-			case AX_CENTER : 
-				position.x = AX_LEFT_POS;
-				playerAx = AX_LEFT;
+			case Ax_Center : 
+				position.x = Ax_Left_Pos;
+				playerAx = Ax_Left;
 				break;
-			case AX_RIGHT : 
-				position.x = AX_CENTER_POS;
-				playerAx = AX_CENTER;
+			case Ax_Right : 
+				position.x = Ax_Center_Pos;
+				playerAx = Ax_Center;
 				break;
 			default : 
 				break;
 			}
-			backGround.transform.position = position;
+			player.transform.position = position;
 		}
 	}
 
-	// プレハブを動かす
+	//----------------------------------------------
+	///@brief 動かすプレハブを追加する
+	///@param [in] プレハブのパス
+	private void addBackGround(string path)
+	{
+		var load = Resources.Load(path);
+		var go = Instantiate(load) as GameObject;
+		go.GetComponent<BackGroundController>().init(this.gameObject, false);
+		backGroundList.Add(go);
+	}
+
+	//----------------------------------------------
+	///@brief プレハブを動かす
 	private void moveBackGround()
 	{
-		if (backGround != null) {
-			var position = backGround.transform.position;
-			position.z -= speed;
-			backGround.transform.position = position;
+		foreach (var backGround in backGroundList) {
+			if (backGround != null) {
+				var position = backGround.transform.position;
+				position.z -= speed;
+				backGround.transform.position = position;
+			}
 		}
 	}
 }
