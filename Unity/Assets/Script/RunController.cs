@@ -12,8 +12,11 @@ public class RunController : MonoBehaviour
 	// 動作させるプレハブ
 	private List<GameObject> backGroundList;
 
-	// タイマー
-	private float timer = 0.0f;
+	// 定期処理タイマー
+	private float constantProcessTimer = 0.0f;
+
+	// 調整処理タイマー
+	private float adjustTimer = 0.0f;
 
 	// スピード
 	private float speed = 0.0f;
@@ -28,17 +31,18 @@ public class RunController : MonoBehaviour
 	private const float Default_Speed = 0.1f;
 
 	// 定期処理時間
-	private const int Constant_Process_Time = 1;
+	private const float Constant_Process_Time = 0.8f;
 
-	// 左右真ん中軸
-	private const string Ax_Center = "0";
-	private const string Ax_Left = "1";
-	private const string Ax_Right = "2";
+	// 調整時間(定期処理時間)
+	private const float Adjust_Time = 0.1f;
+
+	// 左右軸
+	private const string Ax_Left = "0";
+	private const string Ax_Right = "1";
 
 	// 左右真ん中軸座標
-	private const float Ax_Center_Pos = 0.0f;
-	private const float Ax_Left_Pos = 1.0f;
-	private const float Ax_Right_Pos = -1.0f;
+	private const float Ax_Left_Pos = -0.5f;
+	private const float Ax_Right_Pos = 0.5f;
 
 	// プレイヤー
 	[SerializeField]
@@ -55,22 +59,23 @@ public class RunController : MonoBehaviour
 		// 動作するプレハブを設定する
 		backGroundList = new List<GameObject>();
 
-		var load = Resources.Load("Prefab/BackGround/BackGround_Town_01");
+		var load = Resources.Load("Prefab/BackGround/BackGround_Town_02");
 		var go = Instantiate(load) as GameObject;
 		go.GetComponent<BackGroundController>().init(this.gameObject, true);
 		backGroundList.Add(go);
 
 		// 軸指定
-		playerAx = Ax_Center;
+		playerAx = Ax_Left;
 	}
 
 	void Update ()
 	{
 		// タイマー加算
-		timer += Time.deltaTime;
+		constantProcessTimer += Time.deltaTime;
+		adjustTimer += Time.deltaTime;
 
 		// 定期処理
-		if (timer > Constant_Process_Time) {
+		if (constantProcessTimer > Constant_Process_Time) {
 			if (!!initFlg) {
 				speed = Default_Speed;
 				initFlg = false;
@@ -80,7 +85,17 @@ public class RunController : MonoBehaviour
 			playerAnimator.SetBool("Jumping", false);
 			playerAnimator.SetBool("Sliding", false);
 
-			timer = 0.0f;
+			constantProcessTimer = 0.0f;
+		}
+
+		// 調整処理
+		if (adjustTimer > Adjust_Time) {
+			// 位置を定期的に調整する
+			if (playerAx == Ax_Left) {
+				player.transform.position = new Vector3(Ax_Left_Pos, 0, 0);
+			} else {
+				player.transform.position = new Vector3(Ax_Right_Pos, 0, 0);
+			}
 		}
 
 		// プレハブを動かす
@@ -93,28 +108,22 @@ public class RunController : MonoBehaviour
 		if (GUI.Button(new Rect(125, 400, 100, 50), "Jump")) {
 			Debug.Log("Click => Jump");
 			playerAnimator.SetBool("Jumping", true);
+			constantProcessTimer = 0.0f;
 		}
 		// Slidingボタン
 		if (GUI.Button(new Rect(125, 460, 100, 50), "Sliding")) {
 			Debug.Log("Click => Sliding");
 			playerAnimator.SetBool("Sliding", true);
+			constantProcessTimer = 0.0f;
 		}
-
+		
 		// 右移動ボタン
 		if (GUI.Button(new Rect(225, 430, 100, 50), "MoveRight")) {
 			Debug.Log("Click => MoveRight");
 			var position = player.transform.position;
-			switch (playerAx) {
-			case Ax_Left : 
-				position.x = Ax_Center_Pos;
-				playerAx = Ax_Center;
-				break;
-			case Ax_Center : 
+			if (!isPlayerAction() && playerAx == Ax_Left) {
 				position.x = Ax_Right_Pos;
 				playerAx = Ax_Right;
-				break;
-			default : 
-				break;
 			}
 			player.transform.position = position;
 		}
@@ -122,20 +131,22 @@ public class RunController : MonoBehaviour
 		if (GUI.Button(new Rect(25, 430, 100, 50), "MoveLeft")) {
 			Debug.Log("Click => MoveLeft");
 			var position = player.transform.position;
-			switch (playerAx) {
-			case Ax_Center : 
+			if (!isPlayerAction() && playerAx == Ax_Right) {
 				position.x = Ax_Left_Pos;
 				playerAx = Ax_Left;
-				break;
-			case Ax_Right : 
-				position.x = Ax_Center_Pos;
-				playerAx = Ax_Center;
-				break;
-			default : 
-				break;
 			}
 			player.transform.position = position;
 		}
+	}
+
+	//----------------------------------------------
+	///@brief プレイヤーがアクションしているかどうか
+	///@retval true アクションしている
+	///@retval false アクションしていない
+	///@return プレイヤーがアクションしているかどうか
+	private bool isPlayerAction()
+	{
+		return playerAnimator.GetBool("Jumping") || playerAnimator.GetBool("Sliding");
 	}
 
 	//----------------------------------------------

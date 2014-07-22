@@ -18,9 +18,9 @@ public class BackGroundController : MonoBehaviour
 	void Update()
 	{
 		// 自壊処理
-		// TODO 後々は最初に生成して使いまわす形を想定している
+		// TODO 動作に問題があれば最初に生成して使いまわす形を想定している
 		if (this.transform.position.z < Destroy_Z_Pos) {
-			GameObject.Destroy(this);
+			GameObject.Destroy(this.gameObject);
 		}
 	}
 
