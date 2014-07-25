@@ -41,8 +41,8 @@ public class RunController : MonoBehaviour
 	private const string Ax_Right = "1";
 
 	// 左右真ん中軸座標
-	private const float Ax_Left_Pos = -0.5f;
-	private const float Ax_Right_Pos = 0.5f;
+	private const float Ax_Left_Pos = -0.25f;
+	private const float Ax_Right_Pos = 0.25f;
 
 	// プレイヤー
 	[SerializeField]
@@ -50,6 +50,11 @@ public class RunController : MonoBehaviour
 
 	// プレイヤーのアニメーター
 	private Animator playerAnimator;
+
+	// アクション中フラグ
+	private bool isActioning = false;
+	private bool isLeftDelivering = false;
+	private bool isRightDelivering = false;
 
 	void Start ()
 	{
@@ -84,6 +89,12 @@ public class RunController : MonoBehaviour
 
 			playerAnimator.SetBool("Jumping", false);
 			playerAnimator.SetBool("Sliding", false);
+			playerAnimator.SetBool("LeftDeliver", false);
+			playerAnimator.SetBool("RightDeliver", false);
+
+			isActioning = false;
+			isLeftDelivering = false;
+			isRightDelivering = false;
 
 			constantProcessTimer = 0.0f;
 		}
@@ -100,6 +111,13 @@ public class RunController : MonoBehaviour
 
 		// プレハブを動かす
 		moveBackGround();
+
+		// アクション中フラグの更新
+		isActioning = playerAnimator.GetBool("Jumping") || playerAnimator.GetBool("Sliding") || 
+						playerAnimator.GetBool("LeftDeliver") || playerAnimator.GetBool("RightDeliver");
+
+		// デリバーアクション当たり判定の発生
+		effectiveDeliverCollision();
 	}
 
 	void OnGUI ()
@@ -120,33 +138,53 @@ public class RunController : MonoBehaviour
 		// 右移動ボタン
 		if (GUI.Button(new Rect(225, 430, 100, 50), "MoveRight")) {
 			Debug.Log("Click => MoveRight");
-			var position = player.transform.position;
-			if (!isPlayerAction() && playerAx == Ax_Left) {
+
+			// 既に右にいる場合はデリバーアクション
+			if (!isActioning && playerAx == Ax_Right) {
+				playerAnimator.SetBool("RightDeliver", true);
+				isRightDelivering = true;
+				constantProcessTimer = 0.0f;
+			} else if (!isActioning && playerAx == Ax_Left) {
+				var position = player.transform.position;
 				position.x = Ax_Right_Pos;
 				playerAx = Ax_Right;
+				player.transform.position = position;
 			}
-			player.transform.position = position;
+
 		}
 		// 左移動ボタン
 		if (GUI.Button(new Rect(25, 430, 100, 50), "MoveLeft")) {
 			Debug.Log("Click => MoveLeft");
-			var position = player.transform.position;
-			if (!isPlayerAction() && playerAx == Ax_Right) {
+
+			// 既に左にいる場合はデリバーアクション
+			if (!isActioning && playerAx == Ax_Left) {
+				playerAnimator.SetBool("LeftDeliver", true);
+				isLeftDelivering = true;
+				constantProcessTimer = 0.0f;
+			} else if (!isActioning && playerAx == Ax_Right) {
+				var position = player.transform.position;
 				position.x = Ax_Left_Pos;
 				playerAx = Ax_Left;
+				player.transform.position = position;
 			}
-			player.transform.position = position;
 		}
 	}
 
 	//----------------------------------------------
-	///@brief プレイヤーがアクションしているかどうか
-	///@retval true アクションしている
-	///@retval false アクションしていない
-	///@return プレイヤーがアクションしているかどうか
-	private bool isPlayerAction()
-	{
-		return playerAnimator.GetBool("Jumping") || playerAnimator.GetBool("Sliding");
+	///@brief デリバーアクションの当たり判定の制御を行う
+	private void effectiveDeliverCollision() {
+		// 左
+		if (!!isLeftDelivering) {
+			player.GetComponent<CharacterController>().leftDeliverCollision.gameObject.SetActive(true);
+		} else {
+			player.GetComponent<CharacterController>().leftDeliverCollision.gameObject.SetActive(false);
+		}
+		// 右
+		if (!!isRightDelivering) {
+			player.GetComponent<CharacterController>().rightDeliverCollision.gameObject.SetActive(true);
+		} else {
+			player.GetComponent<CharacterController>().rightDeliverCollision.gameObject.SetActive(false);
+		}
 	}
 
 	//----------------------------------------------
